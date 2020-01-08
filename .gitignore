@@ -1,1 +1,8 @@
-.idea
+__pycache__
+.tox
+.vagrant
+.vscode
+*.pyc
+ansible-role-*
+molecule.log
+roles
