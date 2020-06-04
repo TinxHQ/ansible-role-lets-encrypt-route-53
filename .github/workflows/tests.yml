@@ -7,20 +7,13 @@ on:
 
 jobs:
   tests:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python: [3.7]
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-
+      # (Un)Caching
       - name: Cache pip
         uses: actions/cache@v2
         with:
@@ -29,16 +22,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip
 
-      - name: Install Tox
-        run: pip install tox
-
       - name: Cache Tox
         uses: actions/cache@v2
         with:
-          path: ~/.tox
-          key: ${{ runner.os }}-tox-${{ hashFiles('**/tox.ini') }}
+          path: .tox
+          key: ${{ runner.os }}-tox
           restore-keys: |
-            ${{ runner.os }}-tox-
+            ${{ runner.os }}-tox
+
+      - name: Cache Molecule
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/molecule
+          key: ${{ runner.os }}-molecule
+          restore-keys: |
+            ${{ runner.os }}-molecule
+
+      # Setup
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
 
       - name: Install Tox
         run: pip install tox
@@ -48,5 +54,6 @@ jobs:
         with:
           credentials: ${{secrets.GIT_CREDENTIALS}}
 
+      # Test
       - name: Run Tox
         run: tox
